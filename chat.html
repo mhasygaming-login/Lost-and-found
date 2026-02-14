@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pusat Komunikasi - LostFound Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --sidebar-color: #004d4d; --bg-color: #f4f7f6; --accent-green: #00b894; --white: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg-color); display: flex; height: 100vh; }
+
+        .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--white); margin: 20px; border-radius: 20px; shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; }
+        .chat-header { padding: 20px; background: var(--sidebar-color); color: white; display: flex; align-items: center; gap: 15px; }
+        .chat-header a { color: white; text-decoration: none; }
+        
+        .message-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #efeae2; }
+        .message { max-width: 70%; padding: 12px 18px; border-radius: 15px; font-size: 14px; position: relative; }
+        .sent { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
+        .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
+        
+        .chat-input-area { padding: 20px; background: white; display: flex; gap: 10px; border-top: 1px solid #eee; }
+        .chat-input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; outline: none; }
+        .btn-send { background: var(--sidebar-color); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; transition: 0.3s; }
+        .btn-send:hover { background: var(--accent-green); }
+
+        /* Sidebar mini chat */
+        .chat-list { width: 300px; background: white; border-right: 1px solid #eee; display: flex; flex-direction: column; }
+        .chat-list-item { padding: 20px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: 0.3s; }
+        .chat-list-item:hover { background: #f4f7f6; }
+        .active-chat { background: #e6f3f0; border-left: 4px solid var(--accent-green); }
+    </style>
+</head>
+<body>
+
+    <div class="chat-list">
+        <div style="padding: 25px; font-weight: 600; font-size: 18px; color: var(--sidebar-color);">
+            <i class="fa-solid fa-message"></i> Pesan Masuk
+        </div>
+        <div id="contact-list">
+            </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <a href="index.html"><i class="fa-solid fa-arrow-left"></i></a>
+            <img id="header-img" src="https://ui-avatars.com/api/?name=P&background=00b894&color=fff" style="width: 40px; height: 40px; border-radius: 50%;">
+            <div>
+                <h4 id="chat-with-name">Pilih Kontak</h4>
+                <p id="chat-status" style="font-size: 11px; opacity: 0.8;">Radar Aktif</p>
+            </div>
+        </div>
+
+        <div class="message-area" id="msg-area">
+            <div style="text-align: center; color: #888; margin-top: 100px;">
+                <i class="fa-solid fa-lock" style="font-size: 40px; margin-bottom: 10px;"></i>
+                <p>Pilih prajurit untuk memulai verifikasi barang.</p>
+            </div>
+        </div>
+
+        <form class="chat-input-area" onsubmit="kirimPesan(event)">
+            <input type="text" id="msg-input" class="chat-input" placeholder="Ketik pesan verifikasi...">
+            <button type="submit" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+    <script>
+        let currentUser = localStorage.getItem('userLogin');
+        let targetChat = JSON.parse(localStorage.getItem('targetChat'));
+
+        window.onload = function() {
+            if (!currentUser) window.location.href = "daftar.html";
+            
+            muatKontak();
+            if(targetChat) {
+                bukaChat(targetChat.email, targetChat.nama);
+                localStorage.removeItem('targetChat'); // Bersihkan setelah digunakan
+            }
+        };
+
+        function muatKontak() {
+            // Dalam sistem pro, ini ambil dari database. Sekarang kita simulasi dari daftarUser
+            const users = JSON.parse(localStorage.getItem('daftarUser')) || [];
+            const list = document.getElementById('contact-list');
+            list.innerHTML = users.filter(u => u.email !== currentUser).map(u => `
+                <div class="chat-list-item" onclick="bukaChat('${u.email}', '${u.nama || u.email}')">
+                    <p style="font-weight: 600; font-size: 14px;">${u.nama || u.email.split('@')[0]}</p>
+                    <p style="font-size: 11px; color: #888;">Siaga Verifikasi</p>
+                </div>
+            `).join('');
+        }
+
+        let chatAktifEmail = "";
+
+        function bukaChat(email, nama) {
+            chatAktifEmail = email;
+            document.getElementById('chat-with-name').innerText = nama;
+            document.getElementById('header-img').src = `https://ui-avatars.com/api/?name=${nama}&background=004d4d&color=fff`;
+            
+            const area = document.getElementById('msg-area');
+            area.innerHTML = `<div style="text-align:center; font-size:12px; color:#999; margin-bottom:20px;">PERCAKAPAN DIMULAI - ${new Date().toLocaleTimeString()}</div>`;
+            
+            // Muat history chat dari localStorage (Simulasi)
+            const history = JSON.parse(localStorage.getItem(`chat_${currentUser}_${email}`)) || [];
+            history.forEach(msg => {
+                tampilkanPesan(msg.text, msg.type);
+            });
+        }
+
+        function kirimPesan(e) {
+            e.preventDefault();
+            const input = document.getElementById('msg-input');
+            if(!input.value || !chatAktifEmail) return;
+
+            tampilkanPesan(input.value, 'sent');
+            
+            // Simpan Chat (Simulasi)
+            const history = JSON.parse(localStorage.getItem(`chat_${currentUser}_${chatAktifEmail}`)) || [];
+            history.push({ text: input.value, type: 'sent' });
+            localStorage.setItem(`chat_${currentUser}_${chatAktifEmail}`, JSON.stringify(history));
+
+            input.value = "";
+            
+            // Simulasi Balasan Otomatis dari radar
+            setTimeout(() => {
+                tampilkanPesan("Laporan diterima. Berikan bukti foto atau ciri khusus barang tersebut.", 'received');
+            }, 1000);
+        }
+
+        function tampilkanPesan(text, type) {
+            const area = document.getElementById('msg-area');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerText = text;
+            area.appendChild(div);
+            area.scrollTop = area.scrollHeight;
+        }
+    </script>
+</body>
+</html>

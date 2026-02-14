@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsip Riwayat - School LostFound Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-color: #004d4d;
+            --bg-color: #f4f7f6;
+            --gold-accent: #d4af37;
+            --white: #ffffff;
+            --accent-green: #00b894;
+            --danger-red: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-color);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .menu-item.active {
+            border-left: 4px solid var(--gold-accent);
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 50px;
+        }
+
+        .header-title {
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--sidebar-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ledger-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ledger-entry {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            display: grid;
+            grid-template-columns: 80px 1fr 200px;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.02);
+            border-left: 6px solid var(--gold-accent);
+            transition: 0.3s;
+        }
+
+        .ledger-entry:hover {
+            transform: scale(1.01);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .ledger-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 77, 77, 0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--sidebar-color);
+            font-size: 20px;
+        }
+
+        .ledger-details h4 {
+            color: var(--sidebar-color);
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .ledger-details p {
+            font-size: 13px;
+            color: #777;
+        }
+
+        .ledger-status {
+            text-align: right;
+        }
+
+        .status-stamp {
+            display: inline-block;
+            padding: 5px 15px;
+            border: 2px solid var(--gold-accent);
+            color: var(--gold-accent);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-radius: 5px;
+            transform: rotate(-5deg);
+        }
+
+        .btn-clear {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: auto;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-clear:hover {
+            background: #ff1f33;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        /* --- NOTIFIKASI LUAR BIASA (CUSTOM SWAL) --- */
+        .swal-markas-popup {
+            background: rgba(0, 45, 45, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold-accent) !important;
+            border-radius: 25px !important;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3) !important;
+        }
+
+        .swal-markas-title {
+            color: var(--gold-accent) !important;
+            font-weight: 600 !important;
+            letter-spacing: 2px;
+        }
+
+        .swal-markas-html {
+            color: #ffffff !important;
+            font-size: 14px !important;
+        }
+
+        .swal-markas-confirm {
+            background: var(--gold-accent) !important;
+            color: #002d2d !important;
+            font-weight: 700 !important;
+            border-radius: 10px !important;
+            padding: 12px 30px !important;
+            margin: 10px !important;
+            text-transform: uppercase;
+        }
+
+        .swal-markas-cancel {
+            background: transparent !important;
+            color: #ff8a80 !important;
+            border: 1px solid #ff8a80 !important;
+            border-radius: 10px !important;
+            padding: 12px 30px !important;
+            margin: 10px !important;
+        }
+
+        .loading-bar-custom {
+            background: var(--gold-accent) !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header"><i class="fa-solid fa-shield-halved"></i><span>LostFound HUB</span></div>
+        <a href="index.html" class="menu-item"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a>
+        <a href="riwayat.html" class="menu-item active"><i class="fa-solid fa-clock-rotate-left"></i> <span>Riwayat
+                Selesai</span></a>
+        <button class="btn-clear" onclick="hapusSemuaRiwayat()"><i class="fa-solid fa-radiation"></i> HANCURKAN
+            ARSIP</button>
+    </div>
+
+    <div class="main-content">
+        <div class="header-title">
+            <h2><i class="fa-solid fa-box-archive"></i> BUKU BESAR ARSIP SELESAI</h2>
+            <p style="font-weight: 600; color: var(--accent-green);">RADAR TERVERIFIKASI</p>
+        </div>
+        <div id="ledger-list" class="ledger-container"></div>
+    </div>
+
+    <script>
+        // LOGIKA MUAT DATA
+        function muatArsip() {
+            const list = document.getElementById('ledger-list');
+            const data = JSON.parse(localStorage.getItem('riwayatMarkas')) || [];
+            if (data.length === 0) {
+                list.innerHTML = `<div style="text-align:center; padding:100px; color:#ccc;"><i class="fa-solid fa-folder-open" style="font-size:50px; margin-bottom:20px;"></i><h3>BELUM ADA DATA TERCATAT</h3></div>`;
+                return;
+            }
+            list.innerHTML = data.reverse().map(item => `
+                <div class="ledger-entry">
+                    <div class="ledger-icon"><i class="fa-solid fa-check-double"></i></div>
+                    <div class="ledger-details">
+                        <h4>${item.barang}</h4>
+                        <p>DIPROSES OLEH: <b>${item.pelapor}</b> | SEKTOR: <b>${item.lokasi}</b></p>
+                    </div>
+                    <div class="ledger-status">
+                        <div class="status-stamp">MISSION CLEARED</div>
+                        <p style="font-size: 10px; color: #aaa; margin-top: 5px;">TIME LOG: ${item.waktuSelesai}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // FUNGSI PENGHANCURAN ARSIP (DENGAN NOTIFIKASI LUAR BIASA)
+        function hapusSemuaRiwayat() {
+            Swal.fire({
+                title: 'KONFIRMASI KETUA!',
+                html: 'Anda akan menghapus seluruh jejak riwayat dari pangkalan data. <br><b style="color:#ff4757;">INI AKAN MENGHAPUS PERMANEN!</b>',
+                icon: 'warning',
+                iconColor: '#d4af37',
+                showCancelButton: true,
+                confirmButtonText: 'YA, HAPUS SEMUA!',
+                cancelButtonText: 'BATALKAN',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'swal-markas-popup',
+                    title: 'swal-markas-title',
+                    htmlContainer: 'swal-markas-html',
+                    confirmButton: 'swal-markas-confirm',
+                    cancelButton: 'swal-markas-cancel'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('riwayatMarkas');
+
+                    // Notif Proses Loading yang Keren
+                    let timerInterval;
+                    Swal.fire({
+                        title: 'MENGHAPUS JEJAK...',
+                        html: 'Membersihkan memori satelit dalam <b></b> ms.',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        background: '#002d2d',
+                        color: '#fff',
+                        didOpen: () => {
+                            Swal.showLoading();
+                            const b = Swal.getHtmlContainer().querySelector('b');
+                            timerInterval = setInterval(() => {
+                                b.textContent = Swal.getTimerLeft();
+                            }, 100);
+                        },
+                        willClose: () => { clearInterval(timerInterval); },
+                        customClass: { timerProgressBar: 'loading-bar-custom', popup: 'swal-markas-popup' }
+                    }).then(() => {
+                        muatArsip();
+                        // Notif Akhir (Toast di pojok)
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'DATABASE BERSIH!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            background: '#004d4d',
+                            color: '#fff'
+                        });
+                    });
+                }
+            });
+        }
+
+        // PROTEKSI KHUSUS ADMIN
+        function proteksiArsip() {
+            const userAktif = localStorage.getItem('userLogin');
+            const btnClear = document.querySelector('.btn-clear');
+            if (userAktif !== "mhasy.gaming@gmail.com") {
+                if (btnClear) btnClear.style.display = 'none';
+            }
+        }
+
+        window.onload = function () {
+            muatArsip();
+            proteksiArsip();
+        };
+    </script>
+</body>
+
+</html>

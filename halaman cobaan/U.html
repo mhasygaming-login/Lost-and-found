@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pusat Kendali Personel - LostFound Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-color: #004d4d;
+            --bg-color: #f4f7f6;
+            --accent-green: #00b894;
+            --white: #ffffff;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR REVOLUTION --- */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-color);
+            color: white;
+            padding: 40px 20px;
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 50px;
+            padding-left: 10px;
+            letter-spacing: 2px;
+        }
+
+        .nav-menu {
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animasi Hidup Saat Hover */
+        .menu-item:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.1);
+            padding-left: 28px;
+            /* Efek geser */
+        }
+
+        .menu-item i {
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        .menu-item:hover i {
+            color: var(--accent-green);
+            transform: scale(1.2);
+        }
+
+        /* Status Aktif */
+        .menu-item.active {
+            background: rgba(0, 184, 148, 0.15);
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .menu-item.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 5px;
+            background: var(--accent-green);
+            border-radius: 0 5px 5px 0;
+        }
+
+        /* Profile Jenderal di Sidebar */
+        .sidebar-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .jenderal-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-green);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 50px 80px;
+        }
+
+        .header-section {
+            margin-bottom: 40px;
+        }
+
+        .header-section h2 {
+            font-size: 28px;
+            color: var(--sidebar-color);
+        }
+
+        .live-counter-box {
+            background: var(--white);
+            padding: 25px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            display: inline-block;
+            border-left: 6px solid var(--accent-green);
+        }
+
+        .live-counter-box h3 {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .live-counter-box p {
+            font-size: 54px;
+            font-weight: 700;
+            color: var(--sidebar-color);
+            line-height: 1;
+        }
+
+        .member-table {
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            border-collapse: collapse;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+        }
+
+        .member-table th {
+            background: var(--sidebar-color);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .member-table td {
+            padding: 20px;
+            border-bottom: 1px solid #f4f4f4;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .btn-kick {
+            background: #ff8a80;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: var(--transition);
+            letter-spacing: 1px;
+        }
+
+        .btn-kick:hover {
+            background: #f44336;
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .password-text {
+            font-family: 'Courier New', Courier, monospace;
+            color: #d35400;
+            font-weight: 600;
+            background: #fef5e7;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #faebcc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>HUB</span>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="index.html" class="menu-item">
+                <i class="fa-solid fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item active">
+                <i class="fa-solid fa-users-viewfinder"></i>
+                <span>Daftar Personel</span>
+            </a>
+            <a href="riwayat.html" class="menu-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Riwayat Selesai</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="jenderal-avatar">JP</div>
+            <div>
+                <p style="font-size: 12px; font-weight: 600; line-height: 1;">Jenderal Prajurit</p>
+                <p style="font-size: 10px; color: rgba(255,255,255,0.5);">Komandan Utama</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header-section">
+            <h2>PUSAT KENDALI PERSONEL</h2>
+            <p style="color: #888;">Kelola seluruh prajurit yang terdaftar dalam sistem radar markas.</p>
+        </div>
+
+        <div class="live-counter-box">
+            <h3>Total Prajurit Aktif</h3>
+            <p id="live-count">0</p>
+        </div>
+
+        <table class="member-table">
+            <thead>
+                <tr>
+                    <th>No. Personel</th>
+                    <th>Email Prajurit</th>
+                    <th>Kata Sandi</th>
+                    <th style="text-align: center;">Aksi Kendali</th>
+                </tr>
+            </thead>
+            <tbody id="member-list"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function muatDaftarPersonel() {
+            const data = JSON.parse(localStorage.getItem('daftarUser')) || [];
+            const list = document.getElementById('member-list');
+            const liveCount = document.getElementById('live-count');
+
+            liveCount.innerText = data.length;
+
+            if (data.length === 0) {
+                list.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:60px; color:#bbb;'><i class='fa-solid fa-satellite-dish' style='font-size:40px; display:block; margin-bottom:15px;'></i>RADAR KOSONG:<br>Belum ada prajurit yang terdeteksi di radar markas.</td></tr>";
+                return;
+            }
+
+            list.innerHTML = data.map((user, index) => `
+                <tr>
+                    <td style="color: #888; font-weight: 600;">#P-00${index + 1}</td>
+                    <td style="font-weight: 600; color: var(--sidebar-color);">${user.email}</td>
+                    <td><span class="password-text">${user.password}</span></td>
+                    <td style="text-align: center;">
+                        <button class="btn-kick" onclick="kickPersonel(${index})">
+                            <i class="fa-solid fa-user-slash"></i> KICK PERSONEL
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function kickPersonel(index) {
+            Swal.fire({
+                title: "KONFIRMASI KOMANDO!",
+                text: "JENDERAL, yakin ingin mengeliminasi personel ini dari radar?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#f44336",
+                cancelButtonColor: "#004d4d",
+                confirmButtonText: "YA, KICK!",
+                cancelButtonText: "BATALKAN"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let data = JSON.parse(localStorage.getItem('daftarUser')) || [];
+                    data.splice(index, 1);
+                    localStorage.setItem('daftarUser', JSON.stringify(data));
+                    muatDaftarPersonel();
+                    Swal.fire("TERELIMINASI!", "Personel telah dihapus dari sistem.", "success");
+                }
+            });
+        }
+
+        window.onload = muatDaftarPersonel;
+    </script>
+</body>
+
+</html>
