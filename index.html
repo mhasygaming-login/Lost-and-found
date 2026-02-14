@@ -5,7 +5,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - School LostFound Hub</title>
+    <title>Dashboard Intelligence - LostFound Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -14,7 +14,7 @@
             --bg-color: #f4f7f6;
             --text-dark: #333;
             --white: #ffffff;
-            --transition: 0.3s ease;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             --accent-green: #00b894;
             --danger-red: #f44336;
         }
@@ -30,9 +30,10 @@
             background-color: var(--bg-color);
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* SIDEBAR */
+        /* --- SIDEBAR TAKTIS --- */
         .sidebar {
             width: 260px;
             background-color: var(--sidebar-color);
@@ -42,24 +43,24 @@
             padding: 30px 20px;
             position: fixed;
             height: 100vh;
-            z-index: 100;
+            z-index: 1000;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-header {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 600;
             margin-bottom: 40px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             cursor: pointer;
             transition: var(--transition);
         }
 
         .sidebar-header:hover {
             color: var(--accent-green);
-            transform: scale(1.05);
-            text-shadow: 0 0 10px rgba(0, 184, 148, 0.5);
+            transform: translateX(5px);
         }
 
         .menu-item {
@@ -70,11 +71,9 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: var(--transition);
             color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            position: relative;
-            overflow: hidden;
         }
 
         .menu-item:hover,
@@ -84,39 +83,49 @@
             padding-left: 25px;
         }
 
+        .menu-item i {
+            transition: 0.3s;
+        }
+
         .menu-item:hover i {
             color: var(--accent-green);
             transform: scale(1.2);
         }
 
-        /* MAIN CONTENT */
+        /* --- MAIN CONTENT --- */
         .main-content {
             margin-left: 260px;
             flex: 1;
             padding: 40px;
         }
 
+        /* HEADER FUTURISTIK */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 40px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.02);
         }
 
         .search-bar {
-            background: var(--white);
+            background: #f8fafc;
             padding: 12px 25px;
             border-radius: 30px;
             width: 400px;
             display: flex;
             align-items: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             transition: var(--transition);
-            border: 1px solid transparent;
+            border: 1px solid #eee;
         }
 
-        .search-bar i {
-            color: #bbb;
+        .search-bar:focus-within {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 15px rgba(0, 184, 148, 0.1);
+            width: 450px;
         }
 
         .search-bar input {
@@ -124,9 +133,16 @@
             outline: none;
             width: 100%;
             margin-left: 10px;
+            background: transparent;
         }
 
-        /* STATS */
+        .system-clock {
+            text-align: right;
+            border-left: 3px solid var(--accent-green);
+            padding-left: 20px;
+        }
+
+        /* STATS CARDS */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -139,20 +155,29 @@
             padding: 25px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+            border-bottom: 4px solid #eee;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-bottom-color: var(--accent-green);
         }
 
         .stat-card h3 {
-            font-size: 12px;
+            font-size: 11px;
             color: #888;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .stat-card p {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 600;
+            color: var(--sidebar-color);
         }
 
-        /* ITEM GRID */
+        /* --- ITEM GRID & SCANNER EFFECT --- */
         .items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -165,52 +190,66 @@
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
             transition: var(--transition);
-            animation: fadeIn 0.5s ease;
-            cursor: pointer;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
         }
 
         .item-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 77, 77, 0.1);
+            border-color: var(--accent-green);
         }
 
         .item-image {
-            height: 180px;
+            height: 200px;
             background-size: cover;
             background-position: center;
             position: relative;
             background-color: #eee;
+            overflow: hidden;
+        }
+
+        /* EFEK SCAN RADAR */
+        .item-image::after {
+            content: "";
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 184, 148, 0.2), transparent);
+            animation: scanRadar 3s infinite linear;
+        }
+
+        @keyframes scanRadar {
+            0% {
+                top: -100%;
+            }
+
+            100% {
+                top: 100%;
+            }
         }
 
         .status-badge {
             position: absolute;
             top: 15px;
             right: 15px;
-            padding: 5px 15px;
+            padding: 6px 15px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: white;
             text-transform: uppercase;
+            z-index: 10;
         }
 
         .status-found {
-            background-color: #4caf50;
+            background: var(--accent-green);
         }
 
         .status-lost {
-            background-color: #f44336;
+            background: var(--danger-red);
         }
 
         .item-info {
@@ -218,29 +257,47 @@
         }
 
         .reporter-name {
-            font-size: 11px;
-            color: var(--sidebar-color);
+            font-size: 10px;
+            color: var(--accent-green);
             font-weight: 600;
+            text-transform: uppercase;
             margin-bottom: 5px;
             display: block;
         }
 
+        .item-info h4 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--sidebar-color);
+        }
+
+        .item-info p {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        /* TOMBOL MEWAH */
         .claim-btn {
             width: 100%;
             padding: 12px;
-            border-radius: 10px;
-            border: none;
+            border-radius: 12px;
+            border: 1px solid #eee;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
+            background: #f8fafc;
+            color: var(--sidebar-color);
         }
 
         .claim-btn:hover {
             background: var(--sidebar-color);
             color: var(--white);
+            letter-spacing: 1px;
+            transform: scale(1.02);
         }
 
-        /* MODALS */
+        /* --- MODAL DESIGN DINAMIS --- */
         .modal {
             display: none;
             position: fixed;
@@ -252,28 +309,26 @@
             align-items: center;
         }
 
-        /* MODAL CONTAINER DENGAN EFEK WARNA DINAMIS */
         .modal-container {
             background: white;
-            width: 90%;
+            width: 95%;
             max-width: 500px;
             border-radius: 30px;
             padding: 40px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             animation: slideUp 0.4s ease;
             border: 5px solid transparent;
-            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+            transition: all 0.5s ease;
         }
 
-        /* IDENTITAS WARNA KOTAK */
         .modal-container.theme-found {
             border-color: var(--accent-green);
-            box-shadow: 0 0 30px rgba(0, 184, 148, 0.4);
+            box-shadow: 0 0 30px rgba(0, 184, 148, 0.3);
         }
 
         .modal-container.theme-lost {
             border-color: var(--danger-red);
-            box-shadow: 0 0 30px rgba(244, 67, 54, 0.4);
+            box-shadow: 0 0 30px rgba(244, 67, 54, 0.3);
         }
 
         @keyframes slideUp {
@@ -290,36 +345,39 @@
 
         .report-input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            border: 1px solid #eee;
+            border-radius: 12px;
             outline: none;
+            background: #f9f9f9;
             transition: 0.3s;
         }
 
         .report-input:focus {
+            background: white;
             border-color: var(--sidebar-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
         .mode-switch {
             display: flex;
-            background: #eee;
+            background: #f0f0f0;
             border-radius: 15px;
-            padding: 5px;
+            padding: 6px;
             margin-bottom: 25px;
         }
 
         .mode-btn {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             background: transparent;
             color: #888;
-            transition: 0.3s;
+            transition: 0.4s;
         }
 
         .mode-btn.active-found {
@@ -332,9 +390,51 @@
             color: white;
         }
 
-        /* DETAIL MODAL */
+        /* FLOATING CHAT */
+        .floating-chat {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            background: var(--sidebar-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 5000;
+            text-decoration: none;
+            border: 2px solid white;
+        }
+
+        .floating-chat:hover {
+            transform: scale(1.1) rotate(15deg);
+            background: var(--accent-green);
+        }
+
+        .chat-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4757;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* DETAIL INVESTIGASI */
         .detail-modal-container {
-            max-width: 800px;
+            max-width: 850px;
             display: flex;
             padding: 0;
             overflow: hidden;
@@ -342,7 +442,7 @@
 
         .detail-img {
             width: 50%;
-            min-height: 400px;
+            min-height: 450px;
             background-size: cover;
             background-position: center;
         }
@@ -356,98 +456,28 @@
         }
 
         .info-row {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 12px;
         }
 
         .info-label {
-            font-size: 11px;
-            color: #888;
+            font-size: 10px;
+            color: #aaa;
             text-transform: uppercase;
             font-weight: 600;
+            letter-spacing: 1px;
         }
 
         .info-value {
             font-size: 15px;
             color: var(--text-dark);
-        }
-
-        .swal2-container {
-            z-index: 9999 !important;
-        }
-
-        .border-jenderal {
-            border: 3px solid var(--sidebar-color) !important;
-            box-shadow: 0 0 20px rgba(0, 77, 77, 0.3) !important;
-            border-radius: 25px !important;
-        }
-
-        .btn-confirm-markas {
-            background-color: #004d4d !important;
-            color: white !important;
-            padding: 10px 25px !important;
-            border-radius: 10px !important;
-            font-weight: 600 !important;
-            cursor: pointer !important;
-            margin: 5px !important;
-            border: none !important;
-        }
-
-        .btn-cancel-markas {
-            background-color: #ff8a80 !important;
-            color: white !important;
-            padding: 10px 25px !important;
-            border-radius: 10px !important;
-            font-weight: 600 !important;
-            cursor: pointer !important;
-            margin: 5px !important;
-            border: none !important;
-        }
-
-        .floating-chat {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: var(--sidebar-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            transition: 0.3s;
-            z-index: 5000;
-            text-decoration: none;
-        }
-
-        .floating-chat:hover {
-            transform: scale(1.1) rotate(15deg);
-            background: var(--accent-green);
-        }
-
-        .chat-badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #ff4757;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
-
     <div class="sidebar">
         <div class="sidebar-header"><i class="fa-solid fa-shield-halved"></i><span>LostFound Hub</span></div>
         <a href="index.html" class="menu-item active"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a>
@@ -464,8 +494,15 @@
 
     <div class="main-content">
         <header>
-            <div class="search-bar"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="search-input"
-                    placeholder="Cari laporan..."></div>
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Cari target laporan...">
+            </div>
+            <div class="system-clock">
+                <p id="current-date" style="margin-bottom: 2px;"></p>
+                <p style="font-size: 10px; color: var(--accent-green); letter-spacing: 3px; font-weight: 600;">SYSTEM:
+                    RADAR ONLINE</p>
+            </div>
         </header>
 
         <div class="stats-container">
@@ -483,29 +520,28 @@
             </div>
         </div>
 
-        <h2 style="margin-bottom: 25px; font-size: 22px;">Laporan Terbaru</h2>
+        <h2 style="margin-bottom: 25px; font-size: 24px; color: var(--sidebar-color);">Radar Aktif Terbaru</h2>
         <div class="items-grid" id="items-grid"></div>
     </div>
 
     <div id="modalLaporan" class="modal">
         <div class="modal-container" id="modal-container-id">
-            <h3 id="form-title" style="margin-bottom: 20px; transition: 0.3s;">Lapor Barang Temuan</h3>
+            <h3 id="form-title" style="margin-bottom: 25px; font-size: 22px;">Lapor Barang Temuan</h3>
             <div class="mode-switch">
                 <button class="mode-btn active-found" id="mode-found" onclick="switchMode('found')">TEMUAN</button>
                 <button class="mode-btn" id="mode-lost" onclick="switchMode('lost')">KEHILANGAN</button>
             </div>
             <form id="laporForm" onsubmit="submitLaporan(event)">
                 <input type="text" id="in-barang" class="report-input" placeholder="Nama Barang" required>
-                <input type="text" id="in-lokasi" class="report-input" placeholder="Lokasi Barang" required>
-                <input type="url" id="in-img" class="report-input" placeholder="Link Gambar (Opsional)">
-                <textarea id="in-pesan" class="report-input" style="height: 80px; resize: none;"
-                    placeholder="Pesan Deskripsi..."></textarea>
-                <button type="submit" id="btn-submit-report"
-                    style="background: var(--sidebar-color); color: white; transition: 0.5s;"
-                    class="claim-btn">PUBLIKASIKAN</button>
+                <input type="text" id="in-lokasi" class="report-input" placeholder="Lokasi Terakhir" required>
+                <input type="url" id="in-img" class="report-input" placeholder="Link Gambar (Wajib / URL)">
+                <textarea id="in-pesan" class="report-input" style="height: 100px; resize: none;"
+                    placeholder="Deskripsi detail barang..."></textarea>
+                <button type="submit" id="btn-submit-report" style="background: var(--accent-green); color: white;"
+                    class="claim-btn">PUBLIKASIKAN DATA</button>
                 <p onclick="tutupFormLaporan()"
-                    style="text-align: center; margin-top: 15px; color: #888; cursor: pointer; font-size: 13px;">
-                    Batalkan</p>
+                    style="text-align: center; margin-top: 15px; color: #aaa; cursor: pointer; font-size: 13px;">
+                    Batalkan Operasi</p>
             </form>
         </div>
     </div>
@@ -514,31 +550,31 @@
         <div class="modal-container detail-modal-container" onclick="event.stopPropagation()">
             <div id="zoom-img" class="detail-img"></div>
             <div class="detail-info">
-                <h2 id="zoom-title" style="margin-bottom: 15px;"></h2>
+                <h2 id="zoom-title" style="margin-bottom: 20px; color: var(--sidebar-color);"></h2>
                 <div class="info-row">
-                    <p class="info-label">Lokasi</p>
+                    <p class="info-label">Sektor Lokasi</p>
                     <p id="zoom-loc" class="info-value"></p>
                 </div>
                 <div class="info-row">
-                    <p class="info-label">Pelapor</p>
+                    <p class="info-label">Agen Pelapor</p>
                     <p id="zoom-rep" class="info-value"></p>
                 </div>
                 <div class="info-row">
-                    <p class="info-label">Tanggal</p>
+                    <p class="info-label">Tanggal Log</p>
                     <p id="zoom-date" class="info-value"></p>
                 </div>
                 <div class="info-row">
-                    <p class="info-label">Pesan</p>
+                    <p class="info-label">Catatan Agen</p>
                     <p id="zoom-msg" class="info-value"></p>
                 </div>
                 <div id="modal-footer-action"></div>
-                <button onclick="tutupInspeksi()" style="margin-top: 10px; background: #eee; color: #333;"
-                    class="claim-btn">KEMBALI</button>
+                <button onclick="tutupInspeksi()" style="margin-top: 10px;" class="claim-btn">KEMBALI KE RADAR</button>
             </div>
         </div>
     </div>
 
-    <a href="chat.html" class="floating-chat"><i class="fa-solid fa-comments"></i>
+    <a href="chat.html" class="floating-chat">
+        <i class="fa-solid fa-comments"></i>
         <div class="chat-badge">!</div>
     </a>
 
@@ -551,12 +587,16 @@
             buttonsStyling: false
         });
 
-        // TEMA AWAL SAAT BUKA FORM
-        function bukaFormLaporan() {
-            document.getElementById('modalLaporan').style.display = 'flex';
-            switchMode('found'); // Default temuan
+        // JAM SISTEM REAL-TIME
+        function updateClock() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('current-date').innerText = now.toLocaleDateString('id-ID', options);
         }
+        setInterval(updateClock, 1000);
+        updateClock();
 
+        function bukaFormLaporan() { document.getElementById('modalLaporan').style.display = 'flex'; switchMode('found'); }
         function tutupFormLaporan() { document.getElementById('modalLaporan').style.display = 'none'; }
         function tutupInspeksi() { document.getElementById('modalInvestigasi').style.display = 'none'; }
 
@@ -571,14 +611,14 @@
                 document.getElementById('mode-lost').className = 'mode-btn';
                 title.innerText = 'Lapor Barang Temuan';
                 title.style.color = 'var(--accent-green)';
-                container.className = 'modal-container theme-found'; // Ganti Border Hijau
+                container.className = 'modal-container theme-found';
                 btnSubmit.style.background = 'var(--accent-green)';
             } else {
                 document.getElementById('mode-found').className = 'mode-btn';
                 document.getElementById('mode-lost').className = 'mode-btn active-lost';
                 title.innerText = 'Lapor Barang Hilang';
                 title.style.color = 'var(--danger-red)';
-                container.className = 'modal-container theme-lost'; // Ganti Border Merah
+                container.className = 'modal-container theme-lost';
                 btnSubmit.style.background = 'var(--danger-red)';
             }
         }
@@ -595,10 +635,10 @@
                         <span class="status-badge ${item.mode === 'found' ? 'status-found' : 'status-lost'}">${item.mode === 'found' ? 'Ditemukan' : 'Hilang'}</span>
                     </div>
                     <div class="item-info">
-                        <span class="reporter-name">Pelapor: ${item.pelapor}</span>
+                        <span class="reporter-name">Agen: ${item.pelapor}</span>
                         <h4>${item.barang}</h4>
                         <p><i class="fa-solid fa-location-dot"></i> ${item.lokasi}</p>
-                        <button class="claim-btn" style="margin-top:10px">Detail Investigasi</button>
+                        <button class="claim-btn">Investigasi Detail</button>
                     </div>`;
                 grid.prepend(card);
             });
@@ -611,14 +651,14 @@
             e.preventDefault();
             const userEmail = localStorage.getItem('userLogin');
             const userDetail = JSON.parse(localStorage.getItem('detail_' + userEmail)) || {};
-            const namaOtomatis = userDetail.firstname || userEmail.split('@')[0].toUpperCase();
+            const namaAgen = userDetail.firstname || userEmail.split('@')[0].toUpperCase();
 
             const newData = {
-                pelapor: namaOtomatis,
+                pelapor: namaAgen,
                 pelaporEmail: userEmail,
                 barang: document.getElementById('in-barang').value,
                 lokasi: document.getElementById('in-lokasi').value,
-                img: document.getElementById('in-img').value || 'https://via.placeholder.com/400x300?text=No+Image',
+                img: document.getElementById('in-img').value || 'https://via.placeholder.com/400x300?text=No+Data',
                 pesan: document.getElementById('in-pesan').value,
                 date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
                 mode: currentMode
@@ -628,7 +668,7 @@
             renderCards();
             tutupFormLaporan();
             document.getElementById('laporForm').reset();
-            Swal.fire({ title: "LAPORAN DIPUBLIKASIKAN!", icon: "success", timer: 1500, showConfirmButton: false });
+            Swal.fire({ title: "LOG PUBLIK!", text: "Data telah disinkronkan ke satelit.", icon: "success", timer: 1500, showConfirmButton: false });
         }
 
         function inspeksiBarang(index) {
@@ -643,17 +683,11 @@
             footer.innerHTML = '';
             const btn = document.createElement('button');
             btn.className = 'claim-btn';
+            btn.style.background = item.mode === 'found' ? 'var(--sidebar-color)' : '#4caf50';
             btn.style.color = 'white';
             btn.style.marginBottom = '10px';
-            if (item.mode === 'found') {
-                btn.innerText = "KLAIM BARANG SAYA";
-                btn.style.background = "var(--sidebar-color)";
-                btn.onclick = () => klaimBarangUser(index);
-            } else {
-                btn.innerText = "SAYA SUDAH MENEMUKANNYA";
-                btn.style.background = "#4caf50";
-                btn.onclick = () => selesaikanMisi(index);
-            }
+            btn.innerText = item.mode === 'found' ? "KLAIM BARANG" : "SAYA MENEMUKANNYA";
+            btn.onclick = () => item.mode === 'found' ? klaimBarangUser(index) : selesaikanMisi(index);
             footer.appendChild(btn);
             document.getElementById('modalInvestigasi').style.display = 'flex';
         }
@@ -661,40 +695,32 @@
         function klaimBarangUser(index) {
             const item = databaseBarang[index];
             swalMarkas.fire({
-                title: "HUBUNGI PENEMU?",
-                text: `Anda akan diarahkan untuk chat langsung dengan ${item.pelapor}`,
+                title: "HUBUNGI AGEN?",
+                text: `Lanjutkan ke jalur chat rahasia dengan ${item.pelapor}?`,
                 icon: "info",
                 showCancelButton: true,
-                confirmButtonText: "SIAP, CHAT SEKARANG",
+                confirmButtonText: "BUKA JALUR CHAT",
                 cancelButtonText: "BATAL"
             }).then((result) => {
                 if (result.isConfirmed) {
                     const barangTerpilih = databaseBarang.splice(index, 1)[0];
                     let userClaims = JSON.parse(localStorage.getItem('barangKlaimUser')) || [];
-                    barangTerpilih.statusKlaim = "Dalam Verifikasi Chat";
+                    barangTerpilih.statusKlaim = "Verifikasi Chat";
                     userClaims.push(barangTerpilih);
                     localStorage.setItem('barangKlaimUser', JSON.stringify(userClaims));
                     localStorage.setItem('databaseBarang', JSON.stringify(databaseBarang));
                     localStorage.setItem('targetChat', JSON.stringify({ email: item.pelaporEmail, nama: item.pelapor, barang: item.barang }));
-                    renderCards();
                     window.location.href = "chat.html";
                 }
             });
         }
 
         function selesaikanMisi(index) {
-            swalMarkas.fire({
-                title: "MISI SELESAI?",
-                text: "Pindahkan target ini ke Riwayat Selesai?",
-                imageUrl: "https://cdn-icons-png.flaticon.com/512/252/252035.png",
-                imageWidth: 80,
-                showCancelButton: true,
-                confirmButtonText: "YA, SELESAIKAN"
-            }).then((result) => {
+            swalMarkas.fire({ title: "MISI SELESAI?", text: "Arsip ini akan dipindahkan ke buku besar.", icon: "question", showCancelButton: true, confirmButtonText: "YA, PINDAHKAN" }).then((result) => {
                 if (result.isConfirmed) {
                     let riwayat = JSON.parse(localStorage.getItem('riwayatMarkas')) || [];
                     const itemSelesai = databaseBarang.splice(index, 1)[0];
-                    itemSelesai.waktuSelesai = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    itemSelesai.waktuSelesai = new Date().toLocaleDateString('id-ID');
                     riwayat.push(itemSelesai);
                     localStorage.setItem('riwayatMarkas', JSON.stringify(riwayat));
                     localStorage.setItem('databaseBarang', JSON.stringify(databaseBarang));
@@ -704,24 +730,17 @@
         }
 
         function aktifkanRadarCari() {
-            const searchInput = document.getElementById('search-input');
-            const searchContainer = document.querySelector('.search-bar');
-            searchContainer.style.boxShadow = "0 0 15px rgba(0, 184, 148, 0.4)";
-            searchContainer.style.border = "1px solid var(--accent-green)";
-            searchInput.focus();
-            setTimeout(() => {
-                searchContainer.style.boxShadow = "0 5px 15px rgba(0, 0, 0, 0.05)";
-                searchContainer.style.border = "1px solid transparent";
-            }, 2000);
+            const si = document.getElementById('search-input');
+            si.focus();
+            si.parentElement.style.boxShadow = "0 0 20px rgba(0, 184, 148, 0.4)";
+            setTimeout(() => si.parentElement.style.boxShadow = "none", 2000);
         }
 
         document.getElementById('search-input').addEventListener('input', function (e) {
-            const keyword = e.target.value.toLowerCase();
-            const cards = document.querySelectorAll('.item-card');
-            cards.forEach(card => {
-                const title = card.querySelector('h4').innerText.toLowerCase();
-                const loc = card.querySelector('p').innerText.toLowerCase();
-                card.style.display = (title.includes(keyword) || loc.includes(keyword)) ? 'block' : 'none';
+            const kw = e.target.value.toLowerCase();
+            document.querySelectorAll('.item-card').forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(kw) ? 'block' : 'none';
             });
         });
 
