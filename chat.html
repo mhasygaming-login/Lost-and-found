@@ -1,141 +1,452 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pusat Komunikasi - LostFound Hub</title>
+    <title>Intelligence Chat - LostFound Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root { --sidebar-color: #004d4d; --bg-color: #f4f7f6; --accent-green: #00b894; --white: #ffffff; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: var(--bg-color); display: flex; height: 100vh; }
+        :root {
+            --sidebar-color: #004d4d;
+            --bg-color: #f0f2f5;
+            --accent-green: #00b894;
+            --white: #ffffff;
+            --chat-bg: #e5ddd5;
+            --bubble-sent: #dcf8c6;
+            --bubble-received: #ffffff;
+        }
 
-        .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--white); margin: 20px; border-radius: 20px; shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; }
-        .chat-header { padding: 20px; background: var(--sidebar-color); color: white; display: flex; align-items: center; gap: 15px; }
-        .chat-header a { color: white; text-decoration: none; }
-        
-        .message-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #efeae2; }
-        .message { max-width: 70%; padding: 12px 18px; border-radius: 15px; font-size: 14px; position: relative; }
-        .sent { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
-        .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
-        
-        .chat-input-area { padding: 20px; background: white; display: flex; gap: 10px; border-top: 1px solid #eee; }
-        .chat-input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; outline: none; }
-        .btn-send { background: var(--sidebar-color); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; transition: 0.3s; }
-        .btn-send:hover { background: var(--accent-green); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-        /* Sidebar mini chat */
-        .chat-list { width: 300px; background: white; border-right: 1px solid #eee; display: flex; flex-direction: column; }
-        .chat-list-item { padding: 20px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: 0.3s; }
-        .chat-list-item:hover { background: #f4f7f6; }
-        .active-chat { background: #e6f3f0; border-left: 4px solid var(--accent-green); }
+        body {
+            background: var(--bg-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- CONTACT LIST (LEFT) --- */
+        .side-chat {
+            width: 350px;
+            background: var(--white);
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .side-header {
+            padding: 20px;
+            background: var(--sidebar-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-contact {
+            padding: 10px 15px;
+            background: #f6f6f6;
+        }
+
+        .search-contact input {
+            width: 100%;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #eee;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .contact-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .contact-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #f2f2f2;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .contact-item:hover {
+            background: #f5f5f5;
+        }
+
+        .contact-item.active {
+            background: #ebebeb;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .avatar-min {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #eee;
+            object-fit: cover;
+        }
+
+        /* --- CHAT AREA (RIGHT) --- */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 10px 20px;
+            background: #ededed;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-info-active {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .typing-status {
+            font-size: 11px;
+            color: var(--accent-green);
+            font-weight: 600;
+            display: none;
+        }
+
+        .messages-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+        }
+
+        .msg-bubble {
+            max-width: 65%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            line-height: 1.4;
+        }
+
+        .msg-sent {
+            align-self: flex-end;
+            background: var(--bubble-sent);
+            border-top-right-radius: 0;
+        }
+
+        .msg-received {
+            align-self: flex-start;
+            background: var(--bubble-received);
+            border-top-left-radius: 0;
+        }
+
+        .msg-img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 5px;
+            display: block;
+            cursor: pointer;
+        }
+
+        .msg-time {
+            font-size: 9px;
+            color: #999;
+            display: block;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* --- INPUT AREA & EMOJI PICKER --- */
+        .input-panel {
+            padding: 15px 30px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .input-panel input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .btn-icon {
+            font-size: 20px;
+            color: #51585c;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-icon:hover {
+            color: var(--sidebar-color);
+            transform: scale(1.1);
+        }
+
+        .btn-send {
+            background: var(--sidebar-color);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* MODAL EMOJI ELIT */
+        .emoji-picker {
+            position: absolute;
+            bottom: 80px;
+            left: 30px;
+            width: 320px;
+            height: 400px;
+            background: #202124;
+            border-radius: 15px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            z-index: 5000;
+            overflow: hidden;
+        }
+
+        .emoji-header {
+            background: #2d2e31;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid #3c4043;
+        }
+
+        .emoji-header i {
+            color: #9aa0a6;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .emoji-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .emoji-item {
+            font-size: 22px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.2s;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .emoji-item:hover {
+            background: #3c4043;
+            transform: scale(1.2);
+        }
     </style>
 </head>
+
 <body>
 
-    <div class="chat-list">
-        <div style="padding: 25px; font-weight: 600; font-size: 18px; color: var(--sidebar-color);">
-            <i class="fa-solid fa-message"></i> Pesan Masuk
+    <div class="side-chat">
+        <div class="side-header">
+            <a href="index.html" style="color: white; font-size: 18px;"><i class="fa-solid fa-arrow-left"></i></a>
+            <h3 style="font-size: 18px;">Pesan Radar</h3>
         </div>
-        <div id="contact-list">
-            </div>
+        <div class="search-contact">
+            <input type="text" placeholder="Cari prajurit...">
+        </div>
+        <div class="contact-container" id="contact-list"></div>
     </div>
 
-    <div class="chat-container">
+    <div class="main-chat">
         <div class="chat-header">
-            <a href="index.html"><i class="fa-solid fa-arrow-left"></i></a>
-            <img id="header-img" src="https://ui-avatars.com/api/?name=P&background=00b894&color=fff" style="width: 40px; height: 40px; border-radius: 50%;">
-            <div>
-                <h4 id="chat-with-name">Pilih Kontak</h4>
-                <p id="chat-status" style="font-size: 11px; opacity: 0.8;">Radar Aktif</p>
+            <div class="user-info-active">
+                <img id="active-avatar" src="https://ui-avatars.com/api/?name=Hub&background=004d4d&color=fff"
+                    class="avatar-min">
+                <div>
+                    <h4 id="active-name" style="font-size: 15px;">Pilih Prajurit</h4>
+                    <p id="typing-notif" class="typing-status">Prajurit sedang mengetik...</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 20px; color: #51585c;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
         </div>
 
-        <div class="message-area" id="msg-area">
-            <div style="text-align: center; color: #888; margin-top: 100px;">
-                <i class="fa-solid fa-lock" style="font-size: 40px; margin-bottom: 10px;"></i>
-                <p>Pilih prajurit untuk memulai verifikasi barang.</p>
+        <div class="messages-area" id="chat-box">
+            <div style="text-align: center; margin-top: 100px; color: #888;">
+                <i class="fa-solid fa-shield-halved" style="font-size: 50px; margin-bottom: 10px;"></i>
+                <p>Jalur komunikasi terenkripsi end-to-end.</p>
             </div>
         </div>
 
-        <form class="chat-input-area" onsubmit="kirimPesan(event)">
-            <input type="text" id="msg-input" class="chat-input" placeholder="Ketik pesan verifikasi...">
-            <button type="submit" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
-        </form>
+        <div class="input-panel">
+            <div class="emoji-picker" id="emoji-picker-ui">
+                <div class="emoji-header">
+                    <i class="fa-regular fa-clock"></i>
+                    <i class="fa-regular fa-face-smile" style="color:var(--accent-green)"></i>
+                    <i class="fa-solid fa-mug-hot"></i>
+                    <i class="fa-solid fa-baseball-bat-ball"></i>
+                    <i class="fa-solid fa-car"></i>
+                </div>
+                <div class="emoji-grid" id="emoji-list-container">
+                </div>
+            </div>
+
+            <i class="fa-solid fa-face-smile btn-icon" onclick="toggleEmojiPicker()"></i>
+            <i class="fa-solid fa-paperclip btn-icon" title="Kirim Gambar" onclick="kirimGambarPrompt()"></i>
+
+            <input type="text" id="msg-input" placeholder="Ketik pesan verifikasi..." onfocus="simulasiKeyboard(true)"
+                onblur="simulasiKeyboard(false)">
+
+            <button class="btn-send" onclick="eksekusiKirim()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
     </div>
 
     <script>
-        let currentUser = localStorage.getItem('userLogin');
-        let targetChat = JSON.parse(localStorage.getItem('targetChat'));
+        const currentUser = localStorage.getItem('userLogin');
+        let chatAktifEmail = "";
 
-        window.onload = function() {
+        // DATABASE EMOJI ELIT JENDERAL
+        const emojis = [
+            '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😇', '😉', '😊', '😋', '😌', '😍', '😘', '😗', '😙', '😚', '😜', '😝', '😛', '🤑', '🤓', '😎', '🤡', '🤠', '🤢', '🤮', '🤧', '🥵', '🥶', '🤯', '🥳', '😴', '💩', '👻', '💀', '👽', '🤖', '🎃'
+        ];
+
+        window.onload = function () {
             if (!currentUser) window.location.href = "daftar.html";
-            
             muatKontak();
-            if(targetChat) {
-                bukaChat(targetChat.email, targetChat.nama);
-                localStorage.removeItem('targetChat'); // Bersihkan setelah digunakan
+            loadEmojis();
+
+            const target = JSON.parse(localStorage.getItem('targetChat'));
+            if (target) {
+                bukaChat(target.email, target.nama);
+                localStorage.removeItem('targetChat');
             }
         };
 
+        function loadEmojis() {
+            const container = document.getElementById('emoji-list-container');
+            container.innerHTML = emojis.map(e => `<div class="emoji-item" onclick="insertEmoji('${e}')">${e}</div>`).join('');
+        }
+
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emoji-picker-ui');
+            picker.style.display = picker.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function insertEmoji(emoji) {
+            document.getElementById('msg-input').value += emoji;
+            document.getElementById('emoji-picker-ui').style.display = 'none';
+        }
+
         function muatKontak() {
-            // Dalam sistem pro, ini ambil dari database. Sekarang kita simulasi dari daftarUser
             const users = JSON.parse(localStorage.getItem('daftarUser')) || [];
             const list = document.getElementById('contact-list');
             list.innerHTML = users.filter(u => u.email !== currentUser).map(u => `
-                <div class="chat-list-item" onclick="bukaChat('${u.email}', '${u.nama || u.email}')">
-                    <p style="font-weight: 600; font-size: 14px;">${u.nama || u.email.split('@')[0]}</p>
-                    <p style="font-size: 11px; color: #888;">Siaga Verifikasi</p>
+                <div class="contact-item" onclick="bukaChat('${u.email}', '${u.nama || u.email}')">
+                    <img src="https://ui-avatars.com/api/?name=${u.nama || u.email}&background=004d4d&color=fff" class="avatar-min">
+                    <div style="flex:1">
+                        <h4 style="font-size: 14px;">${u.nama || u.email.split('@')[0].toUpperCase()}</h4>
+                        <p style="font-size: 11px; color: #888;">Siaga Verifikasi...</p>
+                    </div>
                 </div>
             `).join('');
         }
 
-        let chatAktifEmail = "";
-
         function bukaChat(email, nama) {
             chatAktifEmail = email;
-            document.getElementById('chat-with-name').innerText = nama;
-            document.getElementById('header-img').src = `https://ui-avatars.com/api/?name=${nama}&background=004d4d&color=fff`;
-            
-            const area = document.getElementById('msg-area');
-            area.innerHTML = `<div style="text-align:center; font-size:12px; color:#999; margin-bottom:20px;">PERCAKAPAN DIMULAI - ${new Date().toLocaleTimeString()}</div>`;
-            
-            // Muat history chat dari localStorage (Simulasi)
-            const history = JSON.parse(localStorage.getItem(`chat_${currentUser}_${email}`)) || [];
-            history.forEach(msg => {
-                tampilkanPesan(msg.text, msg.type);
+            document.getElementById('active-name').innerText = nama;
+            document.getElementById('active-avatar').src = `https://ui-avatars.com/api/?name=${nama}&background=004d4d&color=fff`;
+            const box = document.getElementById('chat-box');
+            box.innerHTML = `<div style="text-align:center; font-size:11px; background:#fff; padding:5px 15px; border-radius:10px; align-self:center; margin-bottom:20px;">PERCAKAPAN DIMULAI</div>`;
+            const history = JSON.parse(localStorage.getItem(`intel_chat_${currentUser}_${email}`)) || [];
+            history.forEach(m => tampilkanPesan(m.text, m.type, m.isImage));
+        }
+
+        function simulasiKeyboard(isTyping) {
+            if (!chatAktifEmail) return;
+            const notif = document.getElementById('typing-notif');
+            notif.style.display = isTyping ? 'block' : 'none';
+            // Tutup emoji picker jika sedang mengetik
+            if (isTyping) document.getElementById('emoji-picker-ui').style.display = 'none';
+        }
+
+        function kirimGambarPrompt() {
+            if (!chatAktifEmail) return Swal.fire("PILIH KONTAK!", "Tentukan target verifikasi dulu.", "warning");
+            Swal.fire({
+                title: 'LAMPIRKAN GAMBAR',
+                input: 'url',
+                inputLabel: 'Masukkan Link URL Gambar Barang:',
+                inputPlaceholder: 'https://...',
+                showCancelButton: true,
+                confirmButtonText: 'KIRIM GAMBAR',
+                customClass: { popup: 'border-jenderal' }
+            }).then((result) => {
+                if (result.value) {
+                    tampilkanPesan(result.value, 'msg-sent', true);
+                    simpanChat(result.value, 'msg-sent', true);
+                }
             });
         }
 
-        function kirimPesan(e) {
-            e.preventDefault();
+        function eksekusiKirim() {
             const input = document.getElementById('msg-input');
-            if(!input.value || !chatAktifEmail) return;
-
-            tampilkanPesan(input.value, 'sent');
-            
-            // Simpan Chat (Simulasi)
-            const history = JSON.parse(localStorage.getItem(`chat_${currentUser}_${chatAktifEmail}`)) || [];
-            history.push({ text: input.value, type: 'sent' });
-            localStorage.setItem(`chat_${currentUser}_${chatAktifEmail}`, JSON.stringify(history));
-
+            if (!input.value || !chatAktifEmail) return;
+            tampilkanPesan(input.value, 'msg-sent', false);
+            simpanChat(input.value, 'msg-sent', false);
             input.value = "";
-            
-            // Simulasi Balasan Otomatis dari radar
-            setTimeout(() => {
-                tampilkanPesan("Laporan diterima. Berikan bukti foto atau ciri khusus barang tersebut.", 'received');
-            }, 1000);
         }
 
-        function tampilkanPesan(text, type) {
-            const area = document.getElementById('msg-area');
+        function tampilkanPesan(text, type, isImage) {
+            const box = document.getElementById('chat-box');
             const div = document.createElement('div');
-            div.className = `message ${type}`;
-            div.innerText = text;
-            area.appendChild(div);
-            area.scrollTop = area.scrollHeight;
+            div.className = `msg-bubble ${type}`;
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (isImage) {
+                div.innerHTML = `<img src="${text}" class="msg-img" onclick="window.open('${text}')"> <span class="msg-time">${time}</span>`;
+            } else {
+                div.innerHTML = `${text} <span class="msg-time">${time}</span>`;
+            }
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function simpanChat(text, type, isImage) {
+            const history = JSON.parse(localStorage.getItem(`intel_chat_${currentUser}_${chatAktifEmail}`)) || [];
+            history.push({ text, type, isImage });
+            localStorage.setItem(`intel_chat_${currentUser}_${chatAktifEmail}`, JSON.stringify(history));
         }
     </script>
 </body>
+
 </html>
