@@ -83,8 +83,10 @@
             color: var(--accent-green) !important;
             font-weight: 600;
             border-left: 5px solid var(--accent-green);
+            padding-left: 25px;
         }
 
+        /* --- MAIN CONTENT --- */
         .main-content {
             margin-left: 280px;
             flex: 1;
@@ -92,7 +94,6 @@
             min-height: 100vh;
         }
 
-        /* --- HEADER & SEARCH BAR --- */
         header {
             display: flex;
             justify-content: space-between;
@@ -136,7 +137,7 @@
             padding-left: 20px;
         }
 
-        /* --- CARDS & GRID --- */
+        /* --- CARDS & RADAR --- */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -150,12 +151,6 @@
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
             border-bottom: 4px solid #eee;
-        }
-
-        .stat-card h3 {
-            font-size: 11px;
-            color: #888;
-            text-transform: uppercase;
         }
 
         .stat-card p {
@@ -238,10 +233,12 @@
             padding: 20px;
         }
 
-        .item-info h4 {
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: var(--sidebar-color);
+        .reporter-name {
+            font-size: 10px;
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
         }
 
         .claim-btn {
@@ -260,7 +257,7 @@
             color: var(--white);
         }
 
-        /* MODAL */
+        /* --- MODAL --- */
         .modal {
             display: none;
             position: fixed;
@@ -278,7 +275,6 @@
             max-width: 500px;
             border-radius: 30px;
             padding: 40px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             border: 5px solid transparent;
             transition: all 0.5s ease;
         }
@@ -329,35 +325,13 @@
             background: var(--danger-red);
             color: white;
         }
-
-        .floating-chat {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 65px;
-            height: 65px;
-            background: var(--sidebar-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            z-index: 5000;
-            text-decoration: none;
-            border: 2px solid white;
-        }
     </style>
 </head>
 
 <body>
     <div class="sidebar">
-        <div class="sidebar-header">
-            <i class="fa-solid fa-shield-halved" style="color: var(--accent-green);"></i>
-            <span>HUB HQ</span>
-        </div>
-
+        <div class="sidebar-header"><i class="fa-solid fa-shield-halved" style="color: var(--accent-green);"></i>
+            <span>HUB HQ</span></div>
         <nav style="display: flex; flex-direction: column; flex: 1;">
             <a href="index.html" class="menu-item active"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a>
             <div class="menu-item" onclick="bukaFormLaporan()"><i class="fa-solid fa-circle-plus"></i> <span>Buat
@@ -383,8 +357,7 @@
         <header>
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" oninput="deteksiHurufRadar(this.value)"
-                    placeholder="Cari target laporan...">
+                <input type="text" id="search-input" placeholder="Cari target laporan...">
             </div>
             <div class="system-clock">
                 <p id="current-date" style="margin-bottom: 2px; font-weight: 600;"></p>
@@ -419,7 +392,7 @@
                 <button class="mode-btn active-found" id="mode-found" onclick="switchMode('found')">TEMUAN</button>
                 <button class="mode-btn" id="mode-lost" onclick="switchMode('lost')">KEHILANGAN</button>
             </div>
-            <form id="laporForm" onsubmit="submitLaporan(event)">
+            <form id="laporForm">
                 <input type="text" id="in-barang" class="report-input" placeholder="Nama Barang" required>
                 <input type="text" id="in-lokasi" class="report-input" placeholder="Lokasi Terakhir" required>
                 <input type="url" id="in-img" class="report-input" placeholder="Link Gambar (Wajib / URL)">
@@ -434,34 +407,58 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // --- PASTE KODE JENDERAL DARI IMAGE_FA4961 DI SINI ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCl...", // GANTI DENGAN KODE ASLI JENDERAL
+            authDomain: "lostfound-hub-8e41f.firebaseapp.com",
+            databaseURL: "https://lostfound-hub-8e41f-default-rtdb.firebaseio.com", // PASTIKAN ADA INI
+            projectId: "lostfound-hub-8e41f",
+            storageBucket: "lostfound-hub-8e41f.appspot.com",
+            messagingSenderId: "986701877293",
+            appId: "1:986701877293:web:7ae161a3fe466dc283a8a4",
+            measurementId: "G-S3HTPXQWXF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
         let currentMode = 'found';
-        let databaseBarang = JSON.parse(localStorage.getItem('databaseBarang')) || [];
+        let allItemsFromCloud = [];
 
-        // FUNGSI INTI: DETEKSI HURUF DAN FILTER RADAR
-        function deteksiHurufRadar(kataKunci) {
-            const keyword = kataKunci.toLowerCase();
-            const grid = document.getElementById('items-grid');
+        // --- FUNGSI UI ---
+        window.bukaFormLaporan = () => { document.getElementById('modalLaporan').style.display = 'flex'; switchMode('found'); };
+        window.tutupFormLaporan = () => { document.getElementById('modalLaporan').style.display = 'none'; };
 
-            // Filter database berdasarkan nama barang
-            const hasilFilter = databaseBarang.filter(item =>
-                item.barang.toLowerCase().includes(keyword) ||
-                item.pelapor.toLowerCase().includes(keyword)
-            );
+        window.switchMode = (mode) => {
+            currentMode = mode;
+            const container = document.getElementById('modal-container-id');
+            const title = document.getElementById('form-title');
+            const btnSubmit = document.getElementById('btn-submit-report');
+            if (mode === 'found') {
+                document.getElementById('mode-found').className = 'mode-btn active-found';
+                document.getElementById('mode-lost').className = 'mode-btn';
+                title.innerText = 'Lapor Barang Temuan'; title.style.color = 'var(--accent-green)';
+                container.className = 'modal-container theme-found'; btnSubmit.style.background = 'var(--accent-green)';
+            } else {
+                document.getElementById('mode-found').className = 'mode-btn';
+                document.getElementById('mode-lost').className = 'mode-btn active-lost';
+                title.innerText = 'Lapor Barang Hilang'; title.style.color = 'var(--danger-red)';
+                container.className = 'modal-container theme-lost'; btnSubmit.style.background = 'var(--danger-red)';
+            }
+        };
 
-            renderCards(hasilFilter); // Render ulang hanya yang cocok
-        }
-
-        function renderCards(dataToRender = databaseBarang) {
+        // --- FUNGSI RADAR & SEARCH ---
+        const renderCards = (dataToRender) => {
             const grid = document.getElementById('items-grid');
             grid.innerHTML = '';
-
-            if (dataToRender.length === 0) {
+            if (!dataToRender || dataToRender.length === 0) {
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 50px; color: #bbb;">Target tidak terdeteksi di radar...</div>`;
                 return;
             }
-
-            dataToRender.forEach((item, index) => {
+            dataToRender.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'item-card';
                 card.innerHTML = `
@@ -473,77 +470,58 @@
                         <h4>${item.barang}</h4>
                         <button class="claim-btn">Investigasi Detail</button>
                     </div>`;
-                grid.prepend(card);
+                grid.appendChild(card);
             });
+        };
 
-            // Update Statistik (Hanya dari DB asli)
-            document.getElementById('stat-total').innerText = databaseBarang.length;
-            document.getElementById('stat-lost').innerText = databaseBarang.filter(i => i.mode === 'lost').length;
-            document.getElementById('stat-back').innerText = JSON.parse(localStorage.getItem('riwayatMarkas'))?.length || 0;
-        }
+        document.getElementById('search-input').oninput = (e) => {
+            const keyword = e.target.value.toLowerCase();
+            const filtered = allItemsFromCloud.filter(i => i.barang.toLowerCase().includes(keyword) || i.pelapor.toLowerCase().includes(keyword));
+            renderCards(filtered);
+        };
 
-        function updateClock() {
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            document.getElementById('current-date').innerText = now.toLocaleDateString('id-ID', options);
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+        window.aktifkanRadarCari = () => { document.getElementById('search-input').focus(); document.querySelector('.search-bar').style.boxShadow = "0 0 20px rgba(0, 184, 148, 0.4)"; setTimeout(() => document.querySelector('.search-bar').style.boxShadow = "none", 2000); };
 
-        function bukaFormLaporan() { document.getElementById('modalLaporan').style.display = 'flex'; switchMode('found'); }
-        function tutupFormLaporan() { document.getElementById('modalLaporan').style.display = 'none'; }
-
-        function switchMode(mode) {
-            currentMode = mode;
-            const container = document.getElementById('modal-container-id');
-            const title = document.getElementById('form-title');
-            const btnSubmit = document.getElementById('btn-submit-report');
-            if (mode === 'found') {
-                document.getElementById('mode-found').className = 'mode-btn active-found';
-                document.getElementById('mode-lost').className = 'mode-btn';
-                title.innerText = 'Lapor Barang Temuan';
-                title.style.color = 'var(--accent-green)';
-                container.className = 'modal-container theme-found';
-                btnSubmit.style.background = 'var(--accent-green)';
-            } else {
-                document.getElementById('mode-found').className = 'mode-btn';
-                document.getElementById('mode-lost').className = 'mode-btn active-lost';
-                title.innerText = 'Lapor Barang Hilang';
-                title.style.color = 'var(--danger-red)';
-                container.className = 'modal-container theme-lost';
-                btnSubmit.style.background = 'var(--danger-red)';
-            }
-        }
-
-        function submitLaporan(e) {
+        // --- OPERASI FIREBASE ---
+        document.getElementById('laporForm').onsubmit = (e) => {
             e.preventDefault();
             const userEmail = localStorage.getItem('userLogin');
             const newData = {
-                pelapor: userEmail.split('@')[0].toUpperCase(),
+                pelapor: userEmail ? userEmail.split('@')[0].toUpperCase() : "AGEN RAHASIA",
                 barang: document.getElementById('in-barang').value,
+                lokasi: document.getElementById('in-lokasi').value,
                 img: document.getElementById('in-img').value || 'https://via.placeholder.com/400',
-                mode: currentMode
+                pesan: document.getElementById('in-pesan').value,
+                date: new Date().toLocaleDateString('id-ID'),
+                mode: currentMode,
+                timestamp: Date.now()
             };
-            databaseBarang.push(newData);
-            localStorage.setItem('databaseBarang', JSON.stringify(databaseBarang));
-            renderCards();
+            push(ref(db, 'laporan'), newData);
             tutupFormLaporan();
             document.getElementById('laporForm').reset();
-        }
-
-        function aktifkanRadarCari() {
-            const si = document.getElementById('search-input');
-            si.focus();
-            si.parentElement.style.boxShadow = "0 0 20px rgba(0, 184, 148, 0.4)";
-            setTimeout(() => si.parentElement.style.boxShadow = "none", 2000);
-        }
-
-        window.onload = () => {
-            renderCards();
-            if (localStorage.getItem('userLogin') === "mhasy.gaming@gmail.com") {
-                document.getElementById('admin-menu').style.display = 'flex';
-            }
+            Swal.fire({ title: "LOG PUBLIK TERKIRIM!", text: "Data telah disinkronkan ke seluruh radar.", icon: "success", timer: 1500, showConfirmButton: false });
         };
+
+        // Sinkronisasi Real-Time dari Cloud
+        onValue(ref(db, 'laporan'), (snapshot) => {
+            const data = snapshot.val();
+            allItemsFromCloud = data ? Object.values(data).reverse() : [];
+            renderCards(allItemsFromCloud);
+            document.getElementById('stat-total').innerText = allItemsFromCloud.length;
+            document.getElementById('stat-lost').innerText = allItemsFromCloud.filter(i => i.mode === 'lost').length;
+        });
+
+        // --- SISTEM CLOCK ---
+        const updateClock = () => {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', options);
+        };
+        setInterval(updateClock, 1000); updateClock();
+
+        // Admin Sync
+        if (localStorage.getItem('userLogin') === "mhasy.gaming@gmail.com") {
+            document.getElementById('admin-menu').style.display = 'flex';
+        }
     </script>
 </body>
 
